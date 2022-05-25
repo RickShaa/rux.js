@@ -12,20 +12,23 @@ function cloneState<T> (state:T | T[]){
     }
 }
 
-type ReturnState<T> = [() => T | T[], (cb:Function) => void];
+type ReturnState<T> = [() => T | T[], (cb:(state:T) => T) => void];
+
 
 function rux <T> (state:T ):ReturnState<T> {
     let currentState = state;
     let clone = cloneState(currentState);
-    return [() => clone, (cb:Function) => {
+    return [() => clone, (cb:(oldState:T) => T) => {
         currentState = cb(currentState)
         clone = cloneState(currentState);
         return currentState;
     }];
 }
 
-const [state, setState] = rux([1,2]);
+const [state, setState] = rux({name:"Rick"});
 console.log(state());
-console.log(setState((old: any) => [...old,3,4,5]));
+console.log(setState((old) => {
+    return {...old, name: "R"}
+}));
 console.log(state());
 
