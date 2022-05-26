@@ -15,11 +15,13 @@ function cloneState<T>(state: T) {
 }
 
 function rux<T, TNew extends T>(state: T): ReturnState<T, TNew> {
+  let previousStates: T[] = [];
   let currentState = state;
   let clone = cloneState(currentState);
   return [
     () => clone,
-    (cb: SetStateCallback<T, TNew>) => {
+    (cb) => {
+      previousStates.push(currentState);
       currentState = cb(currentState);
       clone = cloneState(currentState);
       return currentState;
@@ -27,9 +29,9 @@ function rux<T, TNew extends T>(state: T): ReturnState<T, TNew> {
   ];
 }
 
-const [state, setState] = rux({ name: "Rick", age: [1, 2, 3] });
+const [state, setState] = rux({ name: "Rick", age: 2 });
 console.log(state());
 setState((old) => {
-  return { ...old, name: "Rick", lastName: "Shaffer" };
+  return { ...old, name: "R", lastName: "Shaffer" };
 });
 console.log(state());
