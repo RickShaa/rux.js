@@ -19,10 +19,7 @@ productsObserver((state) => {
 
 console.log(getProducts());
 //clone manipulation -  has no effect on initial State
-getProducts().origin = {
-  country: "NNNN",
-  state: "gggggg",
-};
+getProducts();
 
 //setter manipulation
 setProducts((product) => {
@@ -47,7 +44,10 @@ const student = () => {
   return { id: 1, name: "Rick" };
 };
 
-const [getStudent, setStudent, studentObserver] = initState([student()]);
+const [getStudent, setStudent, studentObserver] = initState<
+  Student[],
+  Student[]
+>([student()]);
 studentObserver(() => console.log("StudentObserver 1 called on change"));
 studentObserver(() => console.log("StudentObserver 2 called on change"));
 studentObserver(() => console.log(getStudent()));

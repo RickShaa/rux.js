@@ -27,7 +27,7 @@ export default function rux() {
     return [
       () => stateClone,
       (cb: SetStateCallback<T, TNew>) => {
-        states[stateIndex] = cb(states[stateIndex]);
+        states[stateIndex] = cb(stateClone);
         stateClone = cloneState(states[stateIndex]);
         if (observers.length !== 0) {
           observers.forEach((observer) => {
