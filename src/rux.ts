@@ -1,11 +1,11 @@
 type ReturnState<T, TNew extends T> = [
   () => T,
   (cb: SetStateCallback<T, TNew>) => void,
-  (cb: () => void) => void
+  (cb: ObserverCallback<T>) => void
 ];
 type SetStateCallback<T, TNew extends T> = (oldState: T) => TNew;
 
-type ObserverFunction = () => any;
+type ObserverCallback<T> = (state: T) => any;
 
 function cloneState<T>(state: T) {
   if (typeof state === "object" && !Array.isArray(state) && state) {
@@ -17,10 +17,10 @@ function cloneState<T>(state: T) {
   }
 }
 
-function rux() {
+export default function rux() {
   let states: any[] = [];
   return function <T, TNew extends T>(state: T): ReturnState<T, TNew> {
-    let observers: ObserverFunction[] = [];
+    let observers: ObserverCallback<T>[] = [];
     states.push(state);
     const stateIndex = states.length - 1;
     let stateClone = cloneState(state);
@@ -31,7 +31,7 @@ function rux() {
         stateClone = cloneState(states[stateIndex]);
         if (observers.length !== 0) {
           observers.forEach((observer) => {
-            observer();
+            observer(stateClone);
           });
         }
       },
@@ -41,47 +41,3 @@ function rux() {
     ];
   };
 }
-
-//TEST
-interface Student {
-  id: number;
-  name: string;
-}
-interface Professor {
-  id: number;
-  rank: string;
-}
-
-const student = () => {
-  return { id: 1, name: "Rick" };
-};
-
-const initState = rux();
-
-const [getStudent, setStudent, studentObserver] = initState([student()]);
-studentObserver(() => console.log("StudentObserver 1 called on change"));
-studentObserver(() => console.log("StudentObserver 2 called on change"));
-studentObserver(() => console.log(getStudent()));
-const [getProfessors, setProfessors, professorObserver] = initState({
-  id: 2,
-  rank: "dozent",
-});
-
-professorObserver(() => console.log("ProfessorObserver fired"));
-
-console.log(getProfessors());
-console.log(getStudent());
-
-//observers should fire on state change
-console.log("set Student called ");
-setStudent((oldState) => {
-  return [...oldState, student()];
-});
-console.log("set Student called ");
-setStudent((oldState) => {
-  return [...oldState, student()];
-});
-console.log("Set profs called");
-setProfessors((oldState) => {
-  return { ...oldState, lastName: "test" };
-});
