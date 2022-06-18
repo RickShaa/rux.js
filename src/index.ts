@@ -1,76 +1,35 @@
-import rux from "./rux";
+import initState from "./rux";
 
-const initState = rux();
-
-const product = {
-  id: 2,
-  name: "TShirt",
-  sizes: ["S", "M", "L", "XL"],
-  origin: {
-    country: "China",
-    state: "Beijing",
-  },
-};
-
-const [getProducts, setProducts, productsObserver] = initState(product);
-productsObserver((state) => {
-  renderNewHTML(state);
-});
-
-console.log(getProducts());
-//clone manipulation -  has no effect on initial State
-getProducts();
-
-//setter manipulation
-setProducts((product) => {
-  return { ...product, name: "Shoes" };
-});
-
-function renderNewHTML(whatever: any) {
-  console.log(whatever);
+interface Position {
+  x: number;
+  y: number;
 }
 
-//TEST;
-interface Student {
-  id: number;
-  name: string;
+const [getPosition, setPosition, observePosition, timeTravelPos] = initState<
+  Position[]
+>([]);
+observePosition((state) => {
+  console.log(state);
+});
+
+for (let i = 0; i < 3; i++) {
+  setPosition((state) => {
+    return [...state, { x: 100 * i, y: 100 - i * 10 }];
+  });
 }
-interface Professor {
-  id: number;
-  rank: string;
+
+timeTravelPos.moveBack();
+
+const [getCount, setCount, observeCount, timeTravelCount] = initState(0);
+
+observeCount((state) => {
+  console.log(state);
+});
+
+for (let i = 0; i < 3; i++) {
+  setCount((count) => ++count);
 }
 
-const student = () => {
-  return { id: 1, name: "Rick" };
-};
+timeTravelCount.moveBack();
 
-const [getStudent, setStudent, studentObserver] = initState<
-  Student[],
-  Student[]
->([student()]);
-studentObserver(() => console.log("StudentObserver 1 called on change"));
-studentObserver(() => console.log("StudentObserver 2 called on change"));
-studentObserver(() => console.log(getStudent()));
-const [getProfessors, setProfessors, professorObserver] = initState({
-  id: 2,
-  rank: "dozent",
-});
-
-professorObserver(() => console.log("ProfessorObserver fired"));
-
-console.log(getProfessors());
-console.log(getStudent());
-
-//observers should fire on state change
-console.log("set Student called ");
-setStudent((oldState) => {
-  return [...oldState, student()];
-});
-console.log("set Student called ");
-setStudent((oldState) => {
-  return [...oldState, student()];
-});
-console.log("Set profs called");
-setProfessors((oldState) => {
-  return { ...oldState, lastName: "test" };
-});
+console.log(getCount());
