@@ -1,17 +1,23 @@
 import { initState } from "./rux";
 
-const gameState = initState({
+const { setters, getState, setState, $observe } = initState<
+  { todos: { [key: string]: number }[] },
+  "todos"
+>({
   state() {
     return {
-      count: 1,
+      todos: [],
     };
+  },
+  setters: {
+    addTodos(state, object) {
+      state.todos.push(object);
+    },
   },
 });
 
-gameState.$observe((state) => {
-  console.log("TRIGGER", state);
+$observe((state) => {
+  console.log(state);
 });
 
-gameState.setState((state) => {
-  state.count += 1;
-});
+setters.addTodos({ count: 2 });
