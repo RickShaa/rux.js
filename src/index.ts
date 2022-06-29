@@ -1,35 +1,25 @@
-import { doesNotMatch } from "assert";
 import { initState } from "./rux";
 
-interface TodoState {
+interface Todos {
   todos: string[];
-  done: string[];
 }
 
-const { setters, getState, setState, $observe } = initState<TodoState>({
+const todoStore = initState<Todos>({
   state() {
     return {
       todos: [],
-      done: [],
     };
   },
-  setters: {
-    addTodos(state, object) {
-      state.todos.push(object);
-    },
-    markLastTodoAsDone(state, object) {
-      const lastItem = state.todos.pop();
-      if (lastItem) {
-        state.done.push(lastItem);
-      }
-    },
+});
+
+const addTodo = (todo: string) =>
+  todoStore.update((state) => {
+    state.todos.push(todo);
+  });
+
+export default {
+  $observer: todoStore.$observe,
+  setter: {
+    addTodo,
   },
-});
-
-$observe((state) => {
-  console.log(state);
-});
-
-setters.addTodos("Hello");
-setters.markLastTodoAsDone();
-setters.markLastTodoAsDone();
+};

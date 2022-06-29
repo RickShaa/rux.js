@@ -2,42 +2,28 @@ import lodash from "lodash";
 
 type CallBack<T> = (state: T) => void;
 type TObj = { [key: string]: any };
-type SetterObj<T> = {
-  [key: string]: (state: T, stateModifier?: any) => void;
-};
 
-// stateModifier: T[K] extends Array<any> ? T[K][number] : T[K]
+type AllowedMutations<T extends TObj> = T[keyof T];
+
 type InitState<T> = {
   state: () => T;
-  setters: SetterObj<T>;
+};
+type Update<T> = {
+  [key: string]: (state: T, mutation?: AllowedMutations<T>) => void;
 };
 export function initState<T extends TObj>(init: InitState<T>) {
   let observers: CallBack<T>[] = [];
   let currentState = init.state();
-  let functionNames: string[] = [];
-
-  for (let fn in init.setters) {
-    let fnName = fn.toString();
-    functionNames.push(fnName);
-  }
-  let setterState: {
-    [key: typeof functionNames[number]]: (stateModifier?: any) => void;
-  };
-  setterState = Object.create({});
-  functionNames.forEach((functionName) => {
-    setterState[functionName] = (stateModifier: any) => {
-      init.setters[functionName].apply(null, [currentState, stateModifier]);
-      notifyObservers<T>(observers, lodash.cloneDeep(currentState));
-    };
-  });
-  const stateMachine = {
-    setters: setterState,
+  let stateMachine = {
     getState() {
-      lodash.cloneDeep(currentState);
+      return lodash.cloneDeep(currentState);
     },
-    setState(cb: CallBack<T>) {
+    update(cb: (state: T) => void) {
       cb(currentState);
       notifyObservers<T>(observers, lodash.cloneDeep(currentState));
+    },
+    reset(reset: T) {
+      currentState = reset;
     },
     $observe: (observerCallback: CallBack<T>) => {
       observers.push(observerCallback);
@@ -53,3 +39,33 @@ function notifyObservers<T>(observers: CallBack<T>[], state: T) {
     });
   }
 }
+
+// let fnNames: string[] = [];
+
+// for (let fn in init.update) {
+//   let fnName = fn.toString();
+//   fnNames.push(fnName);
+// }
+// const functionNames = [...fnNames] as const;
+// type UpdatePropertyNames = typeof functionNames[number];
+// type UpdateState = {
+//   [K in UpdatePropertyNames]: (stateModifier?: AllowedMutations<T>) => void;
+// };
+// let updateState: UpdateState;
+// updateState = {};
+// functionNames.forEach((functionName) => {
+//   updateState[functionName] = (stateModifier) => {
+//     init.update[functionName].apply(null, [currentState, stateModifier]);
+//     notifyObservers<T>(observers, lodash.cloneDeep(currentState));
+//   };
+// });
+
+// type AllowedMutations<T extends TObj> = T[keyof T] extends any[]
+// ? AllowedMutations<T[keyof T]>
+// : T[keyof T];
+// type Update<T> = {
+//   [Property in keyof T as `update${Capitalize<string & Property>}`]: (
+//     state: T,
+//     mutation?: AllowedMutations<T>
+//   ) => void;
+// };
