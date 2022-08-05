@@ -1,9 +1,9 @@
 import { CallBack, TObj, InitState } from './types';
 
 export function initState<T extends TObj>(init: InitState<T>) {
-  let observers: CallBack<T>[] = [];
+  const observers: CallBack<T>[] = [];
   let currentState = init.state();
-  let stateMachine = {
+  const stateMachine = {
     getState() {
       return currentState;
     },
