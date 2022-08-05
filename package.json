@@ -1,8 +1,9 @@
 {
   "name": "ruxjs",
   "version": "1.0.0",
-  "description": "State-Manager for setting and detecting simple state changes.",
+  "description": "Typescript State-Manager for setting and detecting simple state changes.",
   "main": "index.js",
+  "types": "lib/types.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
@@ -19,7 +20,6 @@
     "url": "git+https://github.com/RickShaa/rux.js.git"
   },
   "author": "Rick Shaffer",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/RickShaa/rux.js/issues"
   },
